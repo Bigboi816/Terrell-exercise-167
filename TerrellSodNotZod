@@ -1,0 +1,295 @@
+//AUTHOR: Clinton Terrell
+//COURSE: CPT 167
+//PURPOSE: This app calculates the a pizza sale based on user inputs.
+//         User input is validated and if an incorrect the the user is prompted to enter
+//         a valid selection.  It explores the use of methods to simplify code it also
+//         total all sales and the number of each discount once the final report is called.
+//STARTDATE: February 18, 2020
+
+
+package edu.cpt167.terrell.participation6;
+
+import java.util.Scanner;
+
+public class SodNotZod 
+{
+	public static final String PREMIUM_ITEM = "Meat Lover's Pizza";
+	public static final String SPECIAL_ITEM = "Hawaiian Pizza";
+	public static final String BASIC_ITEM = "Cheese Pizza";
+	public static final String OPTION_QUIT = "Quit";
+	public static final String OPTION_MEMBER = "Member Discount";
+	public static final String OPTION_SENIOR = "Senior Discount";
+	public static final String OPTION_NONE = "No Discount";
+	public static final double DISCOUNT_RATE_MEMBER = 0.15;
+	public static final double DISCOUNT_RATE_SENIOR = 0.25;
+	public static final double DISCOUNT_RATE_NONE = 0.0;
+	public static final double TAX_RATE = 0.075;
+	public static final double BASIC_PRICE = 9.99;
+	public static final double PREMIUM_PRICE = 19.99;
+	public static final double SPECIAL_PRICE = 15.99;
+	public static int MAX_PURCHASE_COUNT = 1;
+
+	public static void main(String[] args) 
+	{
+		
+		// VARIABLES
+		Scanner input = new Scanner(System.in);
+
+		String userName = "";
+		String pizzaType = "";
+		int howMany = 0;
+		char discountSelection = ' ';
+		char pizzaSelection = ' ';
+		double pizzaPrice = 0.0;
+		double discount = 0.0;
+		double discountAmount = 0.0;
+		double discountPrice = 0.0;
+		double subTotal = 0.0;
+		double tax = 0.0;
+		double totalCost = 0.0;
+		int memberCount = 0;
+		int seniorCount = 0;
+		int noneCount = 0;
+		int purchaseCounter = 0;
+		int reset_value = 0;
+		double grandTotal = 0.0;
+
+
+		//Welcome Banner
+		displayWelcomeBanner();
+
+
+		// Input Section
+		// Ask customer for their FIRST NAME
+		userName = getUserName(input);
+
+		System.out.print("Thanks " + userName + " now let's get you that pizza\n");
+		System.out.print("");
+
+		//Prime read of DISCOUNT SELECTION
+		discountSelection = validateDiscount(input);
+
+
+		//run-while discount is not Q
+		while (discountSelection != 'Q')
+		{
+			while (purchaseCounter < MAX_PURCHASE_COUNT)
+			{
+				//get and validate pie type	
+				pizzaSelection = validatePizza(input);
+
+				//get and validate pie quantity
+				howMany = validateQuantity(input);
+
+				//assign rate
+				if (discountSelection == 'A')
+				{
+					discount = DISCOUNT_RATE_MEMBER;
+					//increment counter
+					memberCount++;
+				}
+				else if (discountSelection == 'B')
+				{
+					discount = DISCOUNT_RATE_SENIOR;
+					//increment counter
+					seniorCount++;
+				}
+				else
+				{
+					discount = DISCOUNT_RATE_NONE;	
+					//increment counter
+					noneCount++;
+				}
+
+				//Test for sneaker selection
+				if (pizzaSelection == 'A') {
+					pizzaType = PREMIUM_ITEM;
+					pizzaPrice = PREMIUM_PRICE;
+				}
+				else if (pizzaSelection == 'B') {
+					pizzaType = SPECIAL_ITEM;
+					pizzaPrice = SPECIAL_PRICE;
+				}
+				else {
+					pizzaType = BASIC_ITEM;
+					pizzaPrice =BASIC_PRICE;
+				}
+
+				//Calculations
+				discountAmount = pizzaPrice * discount;
+				discountPrice = pizzaPrice - discountAmount;
+				subTotal = howMany * discountPrice;
+				tax = subTotal * TAX_RATE;
+				totalCost = subTotal + tax;
+
+				//calculate accumulator
+				grandTotal += totalCost;
+
+
+				//display transaction report
+				displayTransaction(userName, pizzaType, pizzaPrice, discountAmount, discountPrice, howMany, subTotal, tax, totalCost);
+
+				//Purchase counter
+				purchaseCounter++;
+
+			}//END of while max purchase count
+
+			purchaseCounter = reset_value;
+
+
+			//modify LCV with an update read of discountSelection
+			discountSelection = validateDiscount(input);
+
+
+		}//END run-while discountSelection NOT Q
+
+		//test for transactions
+		if (grandTotal > 0.0)
+		{
+			//called to print final report
+			displayFinalReport(memberCount, seniorCount, noneCount, grandTotal);
+		}
+
+		//FAREWELL MESSAGE
+		displayFarewellMessage(userName);
+
+		//Close scanner
+		input.close();
+
+	}//END of main method
+
+	//Welcome Banner
+	public static void displayWelcomeBanner()
+	{
+		System.out.println("************************************************************\n");
+		System.out.println("Thank you for downloading BIG BOI'S PIZZA, ");
+		System.out.println("home of the best pies in town!!! \n");
+		System.out.println("************************************************************\n");	 
+	}//END Welcome Banner
+
+	//Get user name method
+	public static String getUserName(Scanner borrowedUserName)
+	{
+		String userName;
+		System.out.print("To get you started please enter your first name: ");
+		userName = borrowedUserName.next();
+		return userName;
+	}//END of Get user name method
+
+	//request discount info from user and validates the input
+	//before returning said validated value back to main
+	public static char validateDiscount (Scanner borrowedInput)
+	{
+		char discountSelection = ' ';
+		System.out.println("\n************************************************************");
+		System.out.println("\n************************************************************\n");
+		System.out.println("\n Discount Selection Menu");
+		System.out.printf("%-4s%-15s%8.1f%2s\n", "[A]", OPTION_MEMBER, DISCOUNT_RATE_MEMBER*100, "%");
+		System.out.printf("%-4s%-15s%8.1f%2s\n", "[B]", OPTION_SENIOR,  DISCOUNT_RATE_SENIOR*100,"%" );
+		System.out.printf("%-4s%-15s%8.1f%2s\n", "[C]", OPTION_NONE,  DISCOUNT_RATE_NONE*100,"%" );
+		System.out.printf("%-4s%-15s\n", "[Q]", OPTION_QUIT);
+		System.out.print("\nEnter selection type here: ");
+		discountSelection = borrowedInput.next().toUpperCase().charAt(0);
+		//must validate input
+		while (discountSelection != 'A' && discountSelection != 'B' && discountSelection != 'C' && discountSelection != 'Q') 
+		{
+			System.out.println("\nInvalid Sneaker Selection entered: " + discountSelection + "\n");
+			System.out.println("\n Discount Selection Menu");
+			System.out.printf("%-4s%-15s%8.1f%2s\n", "[A]", OPTION_MEMBER, DISCOUNT_RATE_MEMBER*100, "%");
+			System.out.printf("%-4s%-15s%8.1f%2s\n", "[B]", OPTION_SENIOR,  DISCOUNT_RATE_SENIOR*100,"%" );
+			System.out.printf("%-4s%-15s%8.1f%2s\n", "[C]", OPTION_NONE,  DISCOUNT_RATE_NONE*100,"%" );
+			System.out.printf("%-4s%-15s\n", "[Q]", OPTION_QUIT);
+			System.out.print("\nEnter selection type here: ");
+			discountSelection = borrowedInput.next().toUpperCase().charAt(0);
+		}//END of menu validation
+		return discountSelection;
+	}//END validateDiscount
+
+	//request pizza type info from user and validates the input
+	//before returning said validated value back to main
+	public static char validatePizza(Scanner borrowedInput)
+	{
+		char pizzaSelection = ' ';
+		System.out.println("\n************************************************************");
+		System.out.println("\n Pizza Selection Menu");
+		System.out.printf("%-8s%-30s%1s%8.2f\n", "[A] for ", PREMIUM_ITEM, "$", PREMIUM_PRICE);
+		System.out.printf("%-8s%-30s%1s%8.2f\n", "[B] for ", SPECIAL_ITEM, "$", SPECIAL_PRICE);
+		System.out.printf("%-8s%-30s%1s%8.2f\n", "[C] for ", BASIC_ITEM, "$", BASIC_PRICE);
+		System.out.print("\nEnter selection type here: ");
+		pizzaSelection = borrowedInput.next().toUpperCase().charAt(0);
+		//must validate input
+		while (pizzaSelection != 'A' && pizzaSelection != 'B' && pizzaSelection != 'C') 
+		{
+			System.out.println("\nInvalid Pizza Selection entered: " + pizzaSelection + "\n");
+			System.out.println("\n Pizza Selection Menu");
+			System.out.printf("%-8s%-30s%1s%8.2f\n", "[A] for ", PREMIUM_ITEM, "$", PREMIUM_PRICE);
+			System.out.printf("%-8s%-30s%1s%8.2f\n", "[B] for ", SPECIAL_ITEM, "$", SPECIAL_PRICE);
+			System.out.printf("%-8s%-30s%1s%8.2f\n", "[C] for ", BASIC_ITEM, "$", BASIC_PRICE);
+			System.out.print("\nEnter selection type here: ");
+			pizzaSelection = borrowedInput.next().toUpperCase().charAt(0);
+		}//END of menu validation
+		return pizzaSelection;
+	}//END validateSneaker
+
+	//request number of pizza wanted and validates the input
+	//before returning said validated value back to main
+	public static int validateQuantity(Scanner borrowedInput)
+	{
+		int howMany = 0;
+		System.out.print("\nEnter the number of pies your getting today: ");
+		howMany = borrowedInput.nextInt();
+		System.out.println();
+		//must validate input
+		while (howMany < 0)
+		{
+			System.out.println("Pie QUANTITY cannot be less than 0.\n");
+			System.out.print("\nEnter the number of pies your getting today: ");
+			howMany = borrowedInput.nextInt();
+			System.out.println();
+		}//END of menu validation
+		return howMany;
+	}//END validateQuantity
+
+	public static void displayTransaction(String borrowedUserName, String borrowedPizza, double borrowedPizzaPrice, double borrowedDiscountAmount, double borrowedDiscountPrice, int borrowedHowMany, double borrowedSubTotal, double borrowedTax, double borrowedTotalCost)
+	{
+		//Display the transaction report
+		System.out.println("\n************************************************************\n");
+		System.out.printf("%s, your transaction receipt follows:\n", borrowedUserName);
+		System.out.printf("%s%24s\n", "Pizza Ordered: ", borrowedPizza);
+		System.out.printf("%-30s%-2s%8.2f\n", "Original Price: ", "$", borrowedPizzaPrice);
+		System.out.printf("%-30s%-2s%8.2f\n", "Discount Amount: ", "$", borrowedDiscountAmount);
+		System.out.printf("%-30s%-2s%8.2f\n", "Discount Price: ", "$", borrowedDiscountPrice);
+		System.out.printf("%-30s%8d\n", "Quantity: ", borrowedHowMany);
+		System.out.printf("%-30s%-2s%8.2f\n", "Subtotal: ", "$", borrowedSubTotal);
+		System.out.printf("%-30s%-2s%8.2f\n", "Tax: ", "$", borrowedTax);
+		System.out.printf("%-30s%-2s%8.2f\n", "Total Cost: ", "$", borrowedTotalCost);
+		System.out.println();
+	}//END of report method
+
+	public static void displayFinalReport(int borrowedMemberCount, int borrowedSeniorCount, int borrowedNoneCount, double borrowedGrandTotal)
+	{
+		//Display final report
+		System.out.println("\n************************************************************\n");
+		System.out.println("\n************************************************************\n");
+		System.out.println("Final Sales Report");
+		System.out.println("\n************************************************************\n");
+		System.out.printf("%-25s%8s\n", "Member Discount Count: ", borrowedMemberCount);
+		System.out.printf("%-25s%8s\n", "Senior Discount Count: ", borrowedSeniorCount);
+		System.out.printf("%-25s%8s\n", "No Discount Count", borrowedNoneCount);
+		System.out.printf("%-25s%-2s%8.2f\n", "Final Sales: ", "$", borrowedGrandTotal);
+		System.out.println("\n************************************************************\n");
+		System.out.println("\n************************************************************\n");		
+	}//END of report method
+
+	//Farewell message
+	public static void displayFarewellMessage(String borrowedUserName)
+	{
+		System.out.println("\n************************************************************\n");
+		System.out.println(borrowedUserName + ", thank you for your order if you're");
+		System.out.println("unhappy with your pie give us a call and it's on us.");
+		System.out.println("Make sure you like us on FaceBook!!!!");
+		System.out.println("\n************************************************************\n");	 
+	}//END Farewell message
+
+
+}//END of class
